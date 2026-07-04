@@ -44,7 +44,7 @@ export async function listFeaturedTitlesWithTakings(
   if (linesErr) throw linesErr;
 
   const totals = new Map<string, number>();
-  for (const row of (lines ?? []) as {
+  for (const row of (lines ?? []) as unknown as {
     gross_amount: number | null;
     deal: { title_id: string } | null;
   }[]) {
@@ -52,6 +52,7 @@ export async function listFeaturedTitlesWithTakings(
     if (!tid) continue;
     totals.set(tid, (totals.get(tid) ?? 0) + (row.gross_amount ?? 0));
   }
+
 
   return list.map((t) => ({
     id: t.id,
