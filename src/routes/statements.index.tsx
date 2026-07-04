@@ -13,7 +13,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { formatPeriod } from "@/lib/format";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const FILTERS = ["all", "needs-review", "invoiced", "paid", "failed"] as const;
+const FILTERS = ["all", "needs-review", "invoiced", "paid"] as const;
 type Filter = (typeof FILTERS)[number];
 
 const searchSchema = z.object({
@@ -31,21 +31,27 @@ export const Route = createFileRoute("/statements/")({
   component: StatementsList,
 });
 
-function matches(filter: Filter, status: string): boolean {
+// A statement is considered "paid" when its invoice has been marked PAID in Xero.
+function displayStatus(s: StatementListItem): string {
+  if (s.status === "invoiced" && s.invoiceStatus?.toUpperCase() === "PAID") return "paid";
+  return s.status;
+}
+
+function matches(filter: Filter, s: StatementListItem): boolean {
+  const status = displayStatus(s);
   if (filter === "all") return true;
   if (filter === "needs-review")
-    return status === "received" || status === "parsed" || status === "reviewed";
+    return status === "uploaded" || status === "parsed" || status === "reviewed";
   return status === filter;
 }
 
-const GROUP_ORDER = ["parsed", "received", "reviewed", "invoiced", "paid", "failed"];
+const GROUP_ORDER = ["parsed", "uploaded", "reviewed", "invoiced", "paid"];
 const GROUP_LABEL: Record<string, string> = {
   parsed: "Needs review",
-  received: "Just arrived",
+  uploaded: "Just arrived",
   reviewed: "Ready to invoice",
   invoiced: "Invoiced",
   paid: "Paid",
-  failed: "Failed",
 };
 
 function StatementsList() {
@@ -53,12 +59,13 @@ function StatementsList() {
   const { status } = Route.useSearch();
   const navigate = useNavigate();
 
-  const filtered = data.filter((s) => matches(status, s.status));
+  const filtered = data.filter((s) => matches(status, s));
   const grouped = new Map<string, StatementListItem[]>();
   for (const s of filtered) {
-    const arr = grouped.get(s.status) ?? [];
+    const key = displayStatus(s);
+    const arr = grouped.get(key) ?? [];
     arr.push(s);
-    grouped.set(s.status, arr);
+    grouped.set(key, arr);
   }
 
   return (
@@ -88,7 +95,6 @@ function StatementsList() {
           <TabsTrigger value="needs-review">Needs review</TabsTrigger>
           <TabsTrigger value="invoiced">Invoiced</TabsTrigger>
           <TabsTrigger value="paid">Paid</TabsTrigger>
-          <TabsTrigger value="failed">Failed</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -117,17 +123,14 @@ function StatementsList() {
                   </thead>
                   <tbody className="divide-y divide-border">
                     {(grouped.get(group) ?? []).map((s) => (
-                      <tr
-                        key={s.id}
-                        className="cursor-pointer transition-colors hover:bg-muted/40"
-                      >
+                      <tr key={s.id} className="transition-colors hover:bg-muted/40">
                         <td className="px-4 py-3">
                           <Link
                             to="/statements/$id"
                             params={{ id: s.id }}
                             className="font-serif text-base text-foreground hover:underline"
                           >
-                            {s.title?.name ?? "Untitled"}
+                            {s.title?.name ?? "—"}
                           </Link>
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">
@@ -140,7 +143,7 @@ function StatementsList() {
                           <MoneyCell amount={s.totalGross} />
                         </td>
                         <td className="px-4 py-3">
-                          <StatusChip status={s.status} />
+                          <StatusChip status={displayStatus(s)} />
                         </td>
                       </tr>
                     ))}

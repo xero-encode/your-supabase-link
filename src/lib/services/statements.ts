@@ -12,6 +12,7 @@ export interface StatementListItem extends Statement {
   title: Pick<Title, "id" | "name" | "poster_url"> | null;
   exhibitor: Pick<Exhibitor, "id" | "name"> | null;
   totalGross: number;
+  invoiceStatus: string | null;
 }
 
 interface LineTitleRow {
@@ -26,26 +27,28 @@ export async function listStatementsWithTotals(): Promise<StatementListItem[]> {
       `id, exhibitor_id, file_url, raw_extracted_json, fx_rate_applied,
        period_start, period_end, status, created_at,
        exhibitor:exhibitors(id, name),
+       invoices(xero_status),
        box_office_lines(gross_amount, deal:deals(title:titles(id, name, poster_url)))`,
     )
     .order("created_at", { ascending: false });
 
   if (error) throw error;
 
-  type Row = Omit<StatementListItem, "totalGross" | "title" | "exhibitor"> & {
+  type Row = Omit<StatementListItem, "totalGross" | "title" | "exhibitor" | "invoiceStatus"> & {
     exhibitor: StatementListItem["exhibitor"];
     box_office_lines: LineTitleRow[] | null;
+    invoices: { xero_status: string | null }[] | null;
   };
 
   return (data as unknown as Row[]).map((row) => {
     const lines = row.box_office_lines ?? [];
     const totalGross = lines.reduce((acc, l) => acc + (l.gross_amount ?? 0), 0);
-    // Derive title from the first line's deal (a statement is one film).
-    const title =
-      lines.find((l) => l.deal?.title)?.deal?.title ?? null;
-    const { box_office_lines: _drop, ...rest } = row;
-    void _drop;
-    return { ...rest, title, totalGross };
+    const title = lines.find((l) => l.deal?.title)?.deal?.title ?? null;
+    const invoiceStatus = row.invoices?.[0]?.xero_status ?? null;
+    const { box_office_lines: _l, invoices: _i, ...rest } = row;
+    void _l;
+    void _i;
+    return { ...rest, title, totalGross, invoiceStatus };
   });
 }
 
