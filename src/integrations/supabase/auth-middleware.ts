@@ -2,11 +2,13 @@ import { createMiddleware } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { createClient } from "@supabase/supabase-js";
 
-
 // Server function middleware that validates the caller's Supabase session
 // (bearer token from `attachSupabaseAuth`) and exposes a Supabase client
-// scoped to that user. RLS applies as that user — never bypass with the
-// service role from here.
+// scoped to that user. RLS applies as that user.
+//
+// NOTE: The service role key is intentionally NOT read here. Per project
+// policy, `APP_SUPABASE_SERVICE_ROLE_KEY` is only ever read inside Supabase
+// edge functions — never in TanStack server code.
 export const requireSupabaseAuth = createMiddleware({ type: "function" }).server(
   async ({ next }) => {
     const authHeader = getRequestHeader("authorization");
@@ -20,11 +22,11 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       });
     }
 
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabasePublishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+    const supabaseUrl = process.env.APP_SUPABASE_URL;
+    const supabasePublishableKey = process.env.VITE_APP_SUPABASE_PUBLISHABLE_KEY;
     if (!supabaseUrl || !supabasePublishableKey) {
       throw new Error(
-        "Missing server Supabase environment variables: set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY.",
+        "Missing server Supabase environment variables: set APP_SUPABASE_URL and VITE_APP_SUPABASE_PUBLISHABLE_KEY.",
       );
     }
 
