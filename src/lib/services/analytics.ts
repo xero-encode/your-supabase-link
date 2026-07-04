@@ -55,16 +55,15 @@ interface LineRow {
   gross_amount: number | null;
   ticket_type: string | null;
   statement_id: string;
-  venue: {
-    id: string;
-    name: string;
-    exhibitor: { name: string | null } | null;
-  } | null;
   deal: {
     id: string;
     split_percentage: number;
     title: { id: string; name: string; poster_url: string | null } | null;
-    venue: { id: string; name: string } | null;
+    venue: {
+      id: string;
+      name: string;
+      exhibitor: { name: string | null } | null;
+    } | null;
   } | null;
 }
 
@@ -73,10 +72,9 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
     .from("box_office_lines")
     .select(
       `id, admissions, gross_amount, ticket_type, statement_id,
-       venue:venues(id, name, exhibitor:exhibitors(name)),
        deal:deals(id, split_percentage,
          title:titles(id, name, poster_url),
-         venue:venues(id, name))`,
+         venue:venues(id, name, exhibitor:exhibitors(name)))`,
     );
   if (error) throw error;
 
@@ -121,7 +119,7 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
       titles.set(title.id, t);
     }
 
-    const v = row.venue;
+    const v = row.deal?.venue;
     if (v) {
       const e = venues.get(v.id) ?? {
         venue_id: v.id,
