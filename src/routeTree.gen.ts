@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatementsRouteImport } from './routes/statements'
+import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as DealsRouteImport } from './routes/deals'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatementsIndexRouteImport } from './routes/statements.index'
@@ -18,6 +19,11 @@ import { Route as StatementsIdRouteImport } from './routes/statements.$id'
 const StatementsRoute = StatementsRouteImport.update({
   id: '/statements',
   path: '/statements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerformanceRoute = PerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DealsRoute = DealsRouteImport.update({
@@ -44,6 +50,7 @@ const StatementsIdRoute = StatementsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/deals': typeof DealsRoute
+  '/performance': typeof PerformanceRoute
   '/statements': typeof StatementsRouteWithChildren
   '/statements/$id': typeof StatementsIdRoute
   '/statements/': typeof StatementsIndexRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/deals': typeof DealsRoute
+  '/performance': typeof PerformanceRoute
   '/statements/$id': typeof StatementsIdRoute
   '/statements': typeof StatementsIndexRoute
 }
@@ -58,19 +66,27 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/deals': typeof DealsRoute
+  '/performance': typeof PerformanceRoute
   '/statements': typeof StatementsRouteWithChildren
   '/statements/$id': typeof StatementsIdRoute
   '/statements/': typeof StatementsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/deals' | '/statements' | '/statements/$id' | '/statements/'
+  fullPaths:
+    | '/'
+    | '/deals'
+    | '/performance'
+    | '/statements'
+    | '/statements/$id'
+    | '/statements/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/deals' | '/statements/$id' | '/statements'
+  to: '/' | '/deals' | '/performance' | '/statements/$id' | '/statements'
   id:
     | '__root__'
     | '/'
     | '/deals'
+    | '/performance'
     | '/statements'
     | '/statements/$id'
     | '/statements/'
@@ -79,6 +95,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DealsRoute: typeof DealsRoute
+  PerformanceRoute: typeof PerformanceRoute
   StatementsRoute: typeof StatementsRouteWithChildren
 }
 
@@ -89,6 +106,13 @@ declare module '@tanstack/react-router' {
       path: '/statements'
       fullPath: '/statements'
       preLoaderRoute: typeof StatementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/performance': {
+      id: '/performance'
+      path: '/performance'
+      fullPath: '/performance'
+      preLoaderRoute: typeof PerformanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/deals': {
@@ -139,6 +163,7 @@ const StatementsRouteWithChildren = StatementsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DealsRoute: DealsRoute,
+  PerformanceRoute: PerformanceRoute,
   StatementsRoute: StatementsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
