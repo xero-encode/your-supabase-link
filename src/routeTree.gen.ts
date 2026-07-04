@@ -9,38 +9,95 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatementsRouteImport } from './routes/statements'
+import { Route as DealsRouteImport } from './routes/deals'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StatementsIndexRouteImport } from './routes/statements.index'
+import { Route as StatementsIdRouteImport } from './routes/statements.$id'
 
+const StatementsRoute = StatementsRouteImport.update({
+  id: '/statements',
+  path: '/statements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DealsRoute = DealsRouteImport.update({
+  id: '/deals',
+  path: '/deals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StatementsIndexRoute = StatementsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StatementsRoute,
+} as any)
+const StatementsIdRoute = StatementsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => StatementsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/deals': typeof DealsRoute
+  '/statements': typeof StatementsRouteWithChildren
+  '/statements/$id': typeof StatementsIdRoute
+  '/statements/': typeof StatementsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/deals': typeof DealsRoute
+  '/statements/$id': typeof StatementsIdRoute
+  '/statements': typeof StatementsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/deals': typeof DealsRoute
+  '/statements': typeof StatementsRouteWithChildren
+  '/statements/$id': typeof StatementsIdRoute
+  '/statements/': typeof StatementsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/deals' | '/statements' | '/statements/$id' | '/statements/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/deals' | '/statements/$id' | '/statements'
+  id:
+    | '__root__'
+    | '/'
+    | '/deals'
+    | '/statements'
+    | '/statements/$id'
+    | '/statements/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DealsRoute: typeof DealsRoute
+  StatementsRoute: typeof StatementsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/statements': {
+      id: '/statements'
+      path: '/statements'
+      fullPath: '/statements'
+      preLoaderRoute: typeof StatementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deals': {
+      id: '/deals'
+      path: '/deals'
+      fullPath: '/deals'
+      preLoaderRoute: typeof DealsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +105,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/statements/': {
+      id: '/statements/'
+      path: '/'
+      fullPath: '/statements/'
+      preLoaderRoute: typeof StatementsIndexRouteImport
+      parentRoute: typeof StatementsRoute
+    }
+    '/statements/$id': {
+      id: '/statements/$id'
+      path: '/$id'
+      fullPath: '/statements/$id'
+      preLoaderRoute: typeof StatementsIdRouteImport
+      parentRoute: typeof StatementsRoute
+    }
   }
 }
 
+interface StatementsRouteChildren {
+  StatementsIdRoute: typeof StatementsIdRoute
+  StatementsIndexRoute: typeof StatementsIndexRoute
+}
+
+const StatementsRouteChildren: StatementsRouteChildren = {
+  StatementsIdRoute: StatementsIdRoute,
+  StatementsIndexRoute: StatementsIndexRoute,
+}
+
+const StatementsRouteWithChildren = StatementsRoute._addFileChildren(
+  StatementsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DealsRoute: DealsRoute,
+  StatementsRoute: StatementsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
