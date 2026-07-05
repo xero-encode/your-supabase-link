@@ -116,7 +116,7 @@ function StatementsList() {
                     <tr>
                       <th className="px-4 py-3 font-medium">Exhibitor</th>
                       <th className="px-4 py-3 font-medium">Playweek</th>
-                      <th className="px-4 py-3 font-medium">Title</th>
+                      <th className="px-4 py-3 text-right font-medium">Admissions</th>
                       <th className="px-4 py-3 text-right font-medium">Gross</th>
                       <th className="px-4 py-3 font-medium">Status</th>
                     </tr>
@@ -136,8 +136,8 @@ function StatementsList() {
                         <td className="px-4 py-3 text-muted-foreground tabular-nums">
                           {formatPeriod(s.period_start, s.period_end)}
                         </td>
-                        <td className="px-4 py-3 text-muted-foreground">
-                          {s.title?.name ?? "—"}
+                        <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                          {s.totalAdmissions.toLocaleString("en-GB")}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <MoneyCell amount={s.totalGross} />

@@ -44,12 +44,12 @@ export async function listStatementsWithTotals(): Promise<StatementListItem[]> {
   return (data as unknown as Row[]).map((row) => {
     const lines = row.box_office_lines ?? [];
     const totalGross = lines.reduce((acc, l) => acc + (l.gross_amount ?? 0), 0);
-    const title = lines.find((l) => l.deal?.title)?.deal?.title ?? null;
+    const totalAdmissions = lines.reduce((acc, l) => acc + (l.admissions ?? 0), 0);
     const invoiceStatus = row.invoices?.[0]?.xero_status ?? null;
     const { box_office_lines: _l, invoices: _i, ...rest } = row;
     void _l;
     void _i;
-    return { ...rest, title, totalGross, invoiceStatus };
+    return { ...rest, totalGross, totalAdmissions, invoiceStatus };
   });
 }
 

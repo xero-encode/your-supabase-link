@@ -30,11 +30,13 @@ export function distributorShare(
 
 export interface LineForTotals {
   gross_amount: number | null;
+  admissions: number | null;
   deal?: { split_percentage: number | null } | null;
 }
 
 export interface StatementTotals {
   totalGross: number;
+  totalAdmissions: number;
   totalOwed: number;
   linesMissingDeal: number;
 }
@@ -46,12 +48,14 @@ export interface StatementTotals {
  */
 export function statementTotals(lines: LineForTotals[]): StatementTotals {
   let totalGross = 0;
+  let totalAdmissions = 0;
   let totalOwed = 0;
   let linesMissingDeal = 0;
 
   for (const line of lines) {
     const gross = line.gross_amount ?? 0;
     totalGross += gross;
+    totalAdmissions += line.admissions ?? 0;
     if (!line.deal) {
       linesMissingDeal += 1;
       continue;
@@ -61,6 +65,7 @@ export function statementTotals(lines: LineForTotals[]): StatementTotals {
 
   return {
     totalGross: roundPennyHalfUp(totalGross),
+    totalAdmissions,
     totalOwed: roundPennyHalfUp(totalOwed),
     linesMissingDeal,
   };
