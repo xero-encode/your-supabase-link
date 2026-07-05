@@ -71,12 +71,16 @@ function ReviewInner({ statement }: { statement: StatementDetail }) {
     if (invoicing) return;
     setInvoicing(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-invoice", {
-        body: { statementId: statement.id },
-      });
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error ?? "Invoice failed");
-      toast.success(`Invoice ${data.xeroInvoiceId} created in Xero`);
+      const response = await fetch(
+        "https://hook.eu1.make.com/xcuc680s57qljrtlqgwd71c7y5hesh5t",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ statement_id: statement.id }),
+        },
+      );
+      if (!response.ok) throw new Error("Failed to trigger invoice generation");
+      toast.success("Invoice generation triggered in Xero");
       await queryClient.invalidateQueries({ queryKey: ["statements"] });
       await router.invalidate();
     } catch (e) {
