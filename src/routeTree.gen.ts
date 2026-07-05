@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatementsRouteImport } from './routes/statements'
 import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as DealsRouteImport } from './routes/deals'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatementsIndexRouteImport } from './routes/statements.index'
 import { Route as StatementsIdRouteImport } from './routes/statements.$id'
@@ -29,6 +30,11 @@ const PerformanceRoute = PerformanceRouteImport.update({
 const DealsRoute = DealsRouteImport.update({
   id: '/deals',
   path: '/deals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,6 +55,7 @@ const StatementsIdRoute = StatementsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/performance': typeof PerformanceRoute
   '/statements': typeof StatementsRouteWithChildren
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/performance': typeof PerformanceRoute
   '/statements/$id': typeof StatementsIdRoute
@@ -65,6 +73,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/performance': typeof PerformanceRoute
   '/statements': typeof StatementsRouteWithChildren
@@ -75,16 +84,24 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard'
     | '/deals'
     | '/performance'
     | '/statements'
     | '/statements/$id'
     | '/statements/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/deals' | '/performance' | '/statements/$id' | '/statements'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/deals'
+    | '/performance'
+    | '/statements/$id'
+    | '/statements'
   id:
     | '__root__'
     | '/'
+    | '/dashboard'
     | '/deals'
     | '/performance'
     | '/statements'
@@ -94,6 +111,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
   DealsRoute: typeof DealsRoute
   PerformanceRoute: typeof PerformanceRoute
   StatementsRoute: typeof StatementsRouteWithChildren
@@ -120,6 +138,13 @@ declare module '@tanstack/react-router' {
       path: '/deals'
       fullPath: '/deals'
       preLoaderRoute: typeof DealsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -162,6 +187,7 @@ const StatementsRouteWithChildren = StatementsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   DealsRoute: DealsRoute,
   PerformanceRoute: PerformanceRoute,
   StatementsRoute: StatementsRouteWithChildren,

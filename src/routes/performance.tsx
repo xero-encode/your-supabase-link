@@ -58,6 +58,7 @@ function PerformancePage() {
           <>
             <SummaryBar data={data} />
             <div className="mt-12 space-y-12">
+              <PlayDateBreakdown data={data} />
               <TitleBreakdown data={data} />
               <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
                 <VenueBreakdown data={data} />
@@ -105,6 +106,41 @@ function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
         {title}
       </h2>
     </div>
+  );
+}
+
+function PlayDateBreakdown({ data }: { data: PerformanceSummary }) {
+  const max = Math.max(...data.byPlayDate.map((d) => d.gross), 1);
+  const rows = data.byPlayDate;
+  if (rows.length === 0) return null;
+  return (
+    <section>
+      <SectionHeader eyebrow="By play date" title="Daily takings" />
+      <div className="rounded-lg border border-border bg-card p-6">
+        <div className="flex h-40 items-end gap-1">
+          {rows.map((d) => (
+            <div
+              key={d.play_date}
+              className="group relative flex-1"
+              title={`${d.play_date} · ${formatCurrency(d.gross)} · ${d.admissions.toLocaleString("en-GB")} admissions`}
+            >
+              <div
+                className="w-full bg-accent-red/80 transition-colors group-hover:bg-accent-red"
+                style={{ height: `${(d.gross / max) * 100}%` }}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 flex justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
+          <span>{rows[0].play_date}</span>
+          <span>
+            {formatCurrency(rows.reduce((s, d) => s + d.gross, 0))} across{" "}
+            {rows.length} {rows.length === 1 ? "day" : "days"}
+          </span>
+          <span>{rows[rows.length - 1].play_date}</span>
+        </div>
+      </div>
+    </section>
   );
 }
 

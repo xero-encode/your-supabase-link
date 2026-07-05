@@ -19,6 +19,13 @@ export function AppHeader() {
         </Link>
         <nav className="flex items-center gap-6 text-sm">
           <Link
+            to="/dashboard"
+            className={linkClass}
+            activeProps={activeLinkProps}
+          >
+            Dashboard
+          </Link>
+          <Link
             to="/statements"
             className={linkClass}
             activeProps={activeLinkProps}

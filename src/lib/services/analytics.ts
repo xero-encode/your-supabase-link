@@ -30,6 +30,13 @@ export interface DealPerformance {
   distributorShare: number;
 }
 
+export interface PlayDatePerformance {
+  play_date: string;
+  admissions: number;
+  gross: number;
+  distributorShare: number;
+}
+
 export interface TicketTypePerformance {
   ticket_type: string;
   admissions: number;
@@ -47,6 +54,7 @@ export interface PerformanceSummary {
   byVenue: VenuePerformance[];
   byDeal: DealPerformance[];
   byTicketType: TicketTypePerformance[];
+  byPlayDate: PlayDatePerformance[];
 }
 
 interface LineRow {
@@ -54,6 +62,7 @@ interface LineRow {
   admissions: number | null;
   gross_amount: number | null;
   ticket_type: string | null;
+  play_date: string | null;
   statement_id: string;
   deal: {
     id: string;
@@ -71,7 +80,7 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
   const { data, error } = await supabase
     .from("box_office_lines")
     .select(
-      `id, admissions, gross_amount, ticket_type, statement_id,
+      `id, admissions, gross_amount, ticket_type, play_date, statement_id,
        deal:deals(id, split_percentage,
          title:titles(id, name, poster_url),
          venue:venues(id, name, exhibitor:exhibitors(name)))`,
@@ -84,6 +93,7 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
   const venues = new Map<string, VenuePerformance>();
   const deals = new Map<string, DealPerformance>();
   const tickets = new Map<string, TicketTypePerformance>();
+  const playDates = new Map<string, PlayDatePerformance>();
   const statementIds = new Set<string>();
 
   let totalAdmissions = 0;
@@ -163,6 +173,19 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
     tk.gross += gross;
     tk.distributorShare += share;
     tickets.set(tt, tk);
+
+    if (row.play_date) {
+      const p = playDates.get(row.play_date) ?? {
+        play_date: row.play_date,
+        admissions: 0,
+        gross: 0,
+        distributorShare: 0,
+      };
+      p.admissions += adm;
+      p.gross += gross;
+      p.distributorShare += share;
+      playDates.set(row.play_date, p);
+    }
   }
 
   const byTicketType = [...tickets.values()]
@@ -181,6 +204,9 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
     byVenue: [...venues.values()].sort((a, b) => b.gross - a.gross),
     byDeal: [...deals.values()].sort((a, b) => b.gross - a.gross),
     byTicketType,
+    byPlayDate: [...playDates.values()].sort((a, b) =>
+      a.play_date.localeCompare(b.play_date),
+    ),
   };
 }
 
