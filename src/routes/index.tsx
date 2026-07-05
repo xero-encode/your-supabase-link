@@ -98,45 +98,63 @@ function TitleTicker({ titles }: { titles: FeaturedTitle[] }) {
 
 function Hero({ titles }: { titles: FeaturedTitle[] }) {
   return (
-    <section className="mx-auto max-w-6xl px-6 pb-20 pt-16 md:pt-24">
-      <div className="text-center">
-        <p className="mb-4 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-          For independent filmmakers · Now showing
-        </p>
-        <h1 className="mx-auto max-w-4xl font-serif text-5xl leading-[0.95] tracking-tight text-foreground md:text-7xl">
-          Reel<span className="text-accent-red">Take</span>
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl font-serif text-xl leading-snug text-foreground/80 md:text-2xl">
-          Box office returns, deal splits, and Xero invoicing — built for the
-          people who put films into cinemas.
-        </p>
-      </div>
+    <section className="relative overflow-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-40 -z-0 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 animate-spotlight rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, var(--color-accent-red) 0%, transparent 60%)",
+          opacity: 0.35,
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-64 bg-[radial-gradient(ellipse_at_top,rgba(0,0,0,0.06),transparent_70%)]"
+      />
+      <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-16 md:pt-24">
+        <div className="text-center animate-rise-in">
+          <p className="mb-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            <span className="inline-block h-1 w-1 animate-reel-tick rounded-full bg-accent-red" />
+            For independent filmmakers · Now showing
+          </p>
+          <h1 className="mx-auto max-w-4xl font-serif text-5xl leading-[0.95] tracking-tight text-foreground md:text-7xl">
+            Reel<span className="text-accent-red">Take</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl font-serif text-xl leading-snug text-foreground/80 md:text-2xl">
+            Box office returns, deal splits, and Xero invoicing — built for the
+            people who put films into cinemas.
+          </p>
+        </div>
 
-      <PosterStage titles={titles} />
+        <PosterStage titles={titles} />
 
-      <div className="mt-14 flex flex-wrap items-center justify-center gap-6">
-        <Link
-          to="/statements"
-          className="inline-flex items-center rounded-none bg-primary px-6 py-3 text-sm font-medium tracking-wide text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          Review statements →
-        </Link>
-        <Link
-          to="/performance"
-          className="inline-flex items-center rounded-none border border-foreground/20 bg-transparent px-6 py-3 text-sm font-medium tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background"
-        >
-          See performance
-        </Link>
-        <Link
-          to="/deals"
-          className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-        >
-          Manage deals
-        </Link>
+        <div className="mt-14 flex flex-wrap items-center justify-center gap-6">
+          <Link
+            to="/statements"
+            className="group relative inline-flex items-center overflow-hidden rounded-none bg-primary px-6 py-3 text-sm font-medium tracking-wide text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <span className="relative z-10">Review statements →</span>
+            <span className="absolute inset-0 -translate-x-full bg-accent-red/30 transition-transform duration-500 group-hover:translate-x-0" />
+          </Link>
+          <Link
+            to="/performance"
+            className="inline-flex items-center rounded-none border border-foreground/20 bg-transparent px-6 py-3 text-sm font-medium tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background"
+          >
+            See performance
+          </Link>
+          <Link
+            to="/deals"
+            className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+          >
+            Manage deals
+          </Link>
+        </div>
       </div>
     </section>
   );
 }
+
 
 const ROTATE_MS = 5000;
 
