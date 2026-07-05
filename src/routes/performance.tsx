@@ -1,14 +1,25 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 
 import { AppHeader } from "@/components/AppHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { MoneyCell } from "@/components/MoneyCell";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatCurrency } from "@/lib/format";
 import {
   performanceQueryOptions,
   type PerformanceSummary,
+  type PlayDateDetail,
 } from "@/lib/services/analytics";
+
+type Metric = "gross" | "distributorShare" | "admissions";
 
 export const Route = createFileRoute("/performance")({
   head: () => ({
