@@ -80,7 +80,7 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
   const { data, error } = await supabase
     .from("box_office_lines")
     .select(
-      `id, admissions, gross_amount, ticket_type, statement_id,
+      `id, admissions, gross_amount, ticket_type, play_date, statement_id,
        deal:deals(id, split_percentage,
          title:titles(id, name, poster_url),
          venue:venues(id, name, exhibitor:exhibitors(name)))`,
@@ -93,6 +93,7 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
   const venues = new Map<string, VenuePerformance>();
   const deals = new Map<string, DealPerformance>();
   const tickets = new Map<string, TicketTypePerformance>();
+  const playDates = new Map<string, PlayDatePerformance>();
   const statementIds = new Set<string>();
 
   let totalAdmissions = 0;
