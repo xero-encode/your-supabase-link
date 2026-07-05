@@ -323,8 +323,12 @@ function TitleBreakdown({ data }: { data: PerformanceSummary }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {data.byTitle.map((t) => (
-              <tr key={t.title_id}>
+            {data.byTitle.map((t, i) => (
+              <tr
+                key={t.title_id}
+                className="animate-rise-in transition-colors hover:bg-secondary/30"
+                style={{ animationDelay: `${i * 60}ms` }}
+              >
                 <td className="px-5 py-3 font-serif text-base text-foreground">
                   {t.title_name}
                 </td>
@@ -340,8 +344,11 @@ function TitleBreakdown({ data }: { data: PerformanceSummary }) {
                 <td className="px-5 py-3">
                   <div className="h-1.5 w-full overflow-hidden bg-muted">
                     <div
-                      className="h-full bg-accent-red"
-                      style={{ width: `${(t.gross / max) * 100}%` }}
+                      className="bar-fill h-full bg-accent-red"
+                      style={{
+                        width: `${(t.gross / max) * 100}%`,
+                        animationDelay: `${i * 60 + 120}ms`,
+                      }}
                     />
                   </div>
                 </td>
@@ -359,10 +366,11 @@ function VenueBreakdown({ data }: { data: PerformanceSummary }) {
     <section>
       <SectionHeader eyebrow="By venue" title="Cinemas" />
       <ul className="divide-y divide-border rounded-lg border border-border bg-card">
-        {data.byVenue.slice(0, 10).map((v) => (
+        {data.byVenue.slice(0, 10).map((v, i) => (
           <li
             key={v.venue_id}
-            className="flex items-baseline justify-between px-5 py-3"
+            className="animate-rise-in flex items-baseline justify-between px-5 py-3 transition-colors hover:bg-secondary/30"
+            style={{ animationDelay: `${i * 50}ms` }}
           >
             <div>
               <p className="text-sm text-foreground">{v.venue_name}</p>
@@ -390,8 +398,12 @@ function TicketTypeBreakdown({ data }: { data: PerformanceSummary }) {
     <section>
       <SectionHeader eyebrow="By ticket type" title="Ticket mix" />
       <ul className="space-y-3 rounded-lg border border-border bg-card p-5">
-        {data.byTicketType.map((t) => (
-          <li key={t.ticket_type}>
+        {data.byTicketType.map((t, i) => (
+          <li
+            key={t.ticket_type}
+            className="animate-rise-in"
+            style={{ animationDelay: `${i * 70}ms` }}
+          >
             <div className="mb-1 flex items-baseline justify-between text-sm">
               <span className="text-foreground">{t.ticket_type}</span>
               <span className="tabular-nums text-muted-foreground">
@@ -400,14 +412,18 @@ function TicketTypeBreakdown({ data }: { data: PerformanceSummary }) {
             </div>
             <div className="h-1.5 w-full overflow-hidden bg-muted">
               <div
-                className="h-full bg-foreground"
-                style={{ width: `${t.share}%` }}
+                className="bar-fill h-full bg-foreground"
+                style={{
+                  width: `${t.share}%`,
+                  animationDelay: `${i * 70 + 120}ms`,
+                }}
               />
             </div>
           </li>
         ))}
       </ul>
     </section>
+
   );
 }
 
