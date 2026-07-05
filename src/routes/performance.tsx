@@ -280,13 +280,13 @@ function PlayDateBreakdown({ data }: { data: PerformanceSummary }) {
                     {formatValue(d.value)}
                   </span>
                   <div
-                    className="bar-fill w-full origin-bottom bg-accent-red/80 transition-colors group-hover:bg-accent-red"
+                    className="bar-fill-y w-full bg-accent-red/80 transition-colors group-hover:bg-accent-red"
                     style={{
                       height: `${Math.max((d.value / max) * 100, 2)}%`,
                       animationDelay: `${Math.min(i * 12, 400)}ms`,
-                      transformOrigin: "bottom",
                     }}
                   />
+
                 </div>
               ))}
             </div>
