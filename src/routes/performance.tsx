@@ -107,13 +107,13 @@ function SummaryBar({ data }: { data: PerformanceSummary }) {
       {items.map((i, idx) => (
         <div
           key={i.label}
-          className="animate-rise-in bg-card px-5 py-6"
+          className="animate-rise-in bg-card px-4 py-5 sm:px-5 sm:py-6"
           style={{ animationDelay: `${idx * 80}ms` }}
         >
           <dt className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
             {i.label}
           </dt>
-          <dd className="mt-2 font-serif text-3xl tabular-nums tracking-tight text-foreground">
+          <dd className="mt-2 font-serif text-xl tabular-nums tracking-tight text-foreground sm:text-3xl">
             <CountUp
               target={i.animate}
               format={(n) =>
