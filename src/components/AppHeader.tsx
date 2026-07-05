@@ -10,14 +10,14 @@ const activeLinkProps = {
 export function AppHeader() {
   return (
     <header className="border-b border-border bg-background">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4 sm:px-6">
         <Link
           to="/"
           className="font-serif text-2xl tracking-tight text-foreground"
         >
           ReelTake
         </Link>
-        <nav className="flex items-center gap-6 text-sm">
+        <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm sm:gap-6">
           <Link
             to="/"
             className={linkClass}
