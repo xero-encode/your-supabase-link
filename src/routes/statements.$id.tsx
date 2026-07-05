@@ -110,15 +110,15 @@ function ReviewInner({ statement }: { statement: StatementDetail }) {
       <div className="mb-8 border-b border-border pb-6">
         <div className="flex items-start justify-between gap-6">
           <div>
-            <h1 className="font-serif text-4xl leading-tight text-foreground">
-              {statement.title?.name ?? "Untitled"}
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              {statement.exhibitor?.name ?? "Unknown exhibitor"} ·{" "}
-              <span className="tabular-nums">
-                {formatPeriod(statement.period_start, statement.period_end)}
-              </span>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              Playweek {formatPeriod(statement.period_start, statement.period_end)}
             </p>
+            <h1 className="mt-1 font-serif text-4xl leading-tight text-foreground">
+              {statement.exhibitor?.name ?? "Unknown exhibitor"}
+            </h1>
+            {statement.title?.name && (
+              <p className="mt-2 text-muted-foreground">{statement.title.name}</p>
+            )}
           </div>
           <StatusChip status={statement.status} />
         </div>
