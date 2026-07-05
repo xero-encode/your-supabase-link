@@ -37,6 +37,15 @@ export interface PlayDatePerformance {
   distributorShare: number;
 }
 
+export interface PlayDateDetail {
+  play_date: string;
+  title_id: string | null;
+  venue_id: string | null;
+  admissions: number;
+  gross: number;
+  distributorShare: number;
+}
+
 export interface TicketTypePerformance {
   ticket_type: string;
   admissions: number;
@@ -55,6 +64,7 @@ export interface PerformanceSummary {
   byDeal: DealPerformance[];
   byTicketType: TicketTypePerformance[];
   byPlayDate: PlayDatePerformance[];
+  playDateDetail: PlayDateDetail[];
 }
 
 interface LineRow {
@@ -94,6 +104,7 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
   const deals = new Map<string, DealPerformance>();
   const tickets = new Map<string, TicketTypePerformance>();
   const playDates = new Map<string, PlayDatePerformance>();
+  const playDateDetail = new Map<string, PlayDateDetail>();
   const statementIds = new Set<string>();
 
   let totalAdmissions = 0;
@@ -185,6 +196,20 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
       p.gross += gross;
       p.distributorShare += share;
       playDates.set(row.play_date, p);
+
+      const detailKey = `${row.play_date}|${row.deal?.title?.id ?? ""}|${row.deal?.venue?.id ?? ""}`;
+      const dd = playDateDetail.get(detailKey) ?? {
+        play_date: row.play_date,
+        title_id: row.deal?.title?.id ?? null,
+        venue_id: row.deal?.venue?.id ?? null,
+        admissions: 0,
+        gross: 0,
+        distributorShare: 0,
+      };
+      dd.admissions += adm;
+      dd.gross += gross;
+      dd.distributorShare += share;
+      playDateDetail.set(detailKey, dd);
     }
   }
 
@@ -207,6 +232,7 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
     byPlayDate: [...playDates.values()].sort((a, b) =>
       a.play_date.localeCompare(b.play_date),
     ),
+    playDateDetail: [...playDateDetail.values()],
   };
 }
 
