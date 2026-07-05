@@ -112,7 +112,7 @@ function Hero({ titles }: { titles: FeaturedTitle[] }) {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-64 bg-[radial-gradient(ellipse_at_top,rgba(0,0,0,0.06),transparent_70%)]"
       />
-      <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-16 md:pt-24">
+      <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-16 sm:px-6 md:pt-24">
         <div className="text-center animate-rise-in">
           <p className="mb-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
             <span className="inline-block h-1 w-1 animate-reel-tick rounded-full bg-accent-red" />
