@@ -71,12 +71,24 @@ function ReviewInner({ statement }: { statement: StatementDetail }) {
     if (invoicing) return;
     setInvoicing(true);
     try {
+      const exhibitorName = statement.exhibitor?.name ?? "Exhibitor";
+      const periodLabel = formatPeriod(statement.period_start, statement.period_end);
+      const invoiceName = `${exhibitorName} — Playweek ${periodLabel}`;
+      const invoiceReference = `${exhibitorName} ${periodLabel}`.replace(/\s+/g, " ").trim();
+
       const response = await fetch(
         "https://hook.eu1.make.com/xcuc680s57qljrtlqgwd71c7y5hesh5t",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ statement_id: statement.id }),
+          body: JSON.stringify({
+            statement_id: statement.id,
+            invoice_name: invoiceName,
+            invoice_reference: invoiceReference,
+            exhibitor_name: exhibitorName,
+            period_start: statement.period_start,
+            period_end: statement.period_end,
+          }),
         },
       );
       if (!response.ok) throw new Error("Failed to trigger invoice generation");
