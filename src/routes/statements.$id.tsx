@@ -128,7 +128,7 @@ function ReviewInner({ statement }: { statement: StatementDetail }) {
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <SummaryStat label="Total gross" value={<MoneyCell amount={totals.totalGross} />} />
         <SummaryStat
-          label="Owed to distributor"
+          label="To be collected"
           value={<MoneyCell amount={totals.totalOwed} />}
         />
         <SummaryStat
