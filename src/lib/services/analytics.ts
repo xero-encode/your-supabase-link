@@ -173,6 +173,19 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
     tk.gross += gross;
     tk.distributorShare += share;
     tickets.set(tt, tk);
+
+    if (row.play_date) {
+      const p = playDates.get(row.play_date) ?? {
+        play_date: row.play_date,
+        admissions: 0,
+        gross: 0,
+        distributorShare: 0,
+      };
+      p.admissions += adm;
+      p.gross += gross;
+      p.distributorShare += share;
+      playDates.set(row.play_date, p);
+    }
   }
 
   const byTicketType = [...tickets.values()]
@@ -191,6 +204,9 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
     byVenue: [...venues.values()].sort((a, b) => b.gross - a.gross),
     byDeal: [...deals.values()].sort((a, b) => b.gross - a.gross),
     byTicketType,
+    byPlayDate: [...playDates.values()].sort((a, b) =>
+      a.play_date.localeCompare(b.play_date),
+    ),
   };
 }
 
