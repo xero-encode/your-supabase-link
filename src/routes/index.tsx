@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { formatCurrency } from "@/lib/format";
@@ -7,6 +8,7 @@ import {
   featuredTitlesQueryOptions,
   type FeaturedTitle,
 } from "@/lib/services/titles";
+import { performanceQueryOptions } from "@/lib/services/analytics";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,8 +29,10 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  loader: ({ context }) =>
-    context.queryClient.ensureQueryData(featuredTitlesQueryOptions),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(featuredTitlesQueryOptions);
+    context.queryClient.prefetchQuery(performanceQueryOptions);
+  },
   component: LandingPage,
   pendingComponent: LandingSkeleton,
   errorComponent: LandingError,
@@ -37,12 +41,19 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   const { data: titles } = useSuspenseQuery(featuredTitlesQueryOptions);
+  const { data: perf } = useSuspenseQuery(performanceQueryOptions);
 
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
       <main>
         <Hero titles={titles} />
+        <LiveNumbers
+          gross={perf.totalGross}
+          share={perf.totalDistributorShare}
+          admissions={perf.totalAdmissions}
+          statements={perf.statementCount}
+        />
         <StatsStrip />
       </main>
       <footer className="border-t border-border">
@@ -108,16 +119,20 @@ function PosterStage({ titles }: { titles: FeaturedTitle[] }) {
     );
   }
 
-  // Choose up to three, feature the middle one.
   const list = titles.slice(0, 3);
   while (list.length < 3) list.push(list[0]);
   const [left, center, right] = list;
 
   return (
-    <div className="relative mt-14 flex items-end justify-center gap-4 md:gap-8">
-      <PosterCard title={left} scale="side" rotate="-left" />
-      <PosterCard title={center} scale="center" />
-      <PosterCard title={right} scale="side" rotate="-right" />
+    <div>
+      <div className="relative mt-14 flex items-end justify-center gap-4 md:gap-8">
+        <PosterCard title={left} scale="side" defaultRotation={-6} />
+        <PosterCard title={center} scale="center" defaultRotation={0} />
+        <PosterCard title={right} scale="side" defaultRotation={6} />
+      </div>
+      <p className="mt-6 text-center text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        Drag a poster to rotate · double-click to reset
+      </p>
     </div>
   );
 }
@@ -125,36 +140,86 @@ function PosterStage({ titles }: { titles: FeaturedTitle[] }) {
 function PosterCard({
   title,
   scale,
-  rotate,
+  defaultRotation,
 }: {
   title: FeaturedTitle;
   scale: "center" | "side";
-  rotate?: "-left" | "-right";
+  defaultRotation: number;
 }) {
   const isCenter = scale === "center";
   const width = isCenter ? "w-56 md:w-72" : "w-32 md:w-44";
   const shadow = isCenter
     ? "shadow-[0_30px_60px_-20px_rgba(0,0,0,0.35)]"
-    : "shadow-[0_20px_40px_-20px_rgba(0,0,0,0.25)] opacity-90";
-  const rot =
-    rotate === "-left"
-      ? "-rotate-3 -mr-4 md:-mr-8"
-      : rotate === "-right"
-        ? "rotate-3 -ml-4 md:-ml-8"
-        : "";
+    : "shadow-[0_20px_40px_-20px_rgba(0,0,0,0.25)] opacity-95";
+  const offset = isCenter
+    ? ""
+    : defaultRotation < 0
+      ? "-mr-4 md:-mr-8"
+      : "-ml-4 md:-ml-8";
   const z = isCenter ? "z-10" : "z-0";
 
+  const [rotation, setRotation] = useState(defaultRotation);
+  const [dragging, setDragging] = useState(false);
+  const posterRef = useRef<HTMLDivElement>(null);
+  const dragState = useRef<{ startAngle: number; startRot: number } | null>(
+    null,
+  );
+
+  const angleFromCenter = (clientX: number, clientY: number) => {
+    const el = posterRef.current;
+    if (!el) return 0;
+    const r = el.getBoundingClientRect();
+    return (
+      (Math.atan2(clientY - (r.top + r.height / 2), clientX - (r.left + r.width / 2)) *
+        180) /
+      Math.PI
+    );
+  };
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    dragState.current = {
+      startAngle: angleFromCenter(e.clientX, e.clientY),
+      startRot: rotation,
+    };
+    setDragging(true);
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!dragState.current) return;
+    const current = angleFromCenter(e.clientX, e.clientY);
+    const delta = current - dragState.current.startAngle;
+    setRotation(dragState.current.startRot + delta);
+  };
+
+  const endDrag = () => {
+    dragState.current = null;
+    setDragging(false);
+  };
+
   return (
-    <article className={`flex flex-col items-center ${z}`}>
+    <article className={`flex flex-col items-center ${z} ${offset}`}>
       <div
-        className={`${width} ${shadow} ${rot} aspect-[2/3] overflow-hidden border border-border bg-muted transition-transform`}
+        ref={posterRef}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onDoubleClick={() => setRotation(defaultRotation)}
+        style={{
+          transform: `rotate(${rotation}deg)`,
+          transition: dragging ? "none" : "transform 300ms ease-out",
+          touchAction: "none",
+        }}
+        className={`${width} ${shadow} aspect-[2/3] cursor-grab touch-none select-none overflow-hidden border border-border bg-muted active:cursor-grabbing`}
       >
         {title.poster_url ? (
           <img
             src={resolvePosterUrl(title.poster_url)}
             alt={`${title.name} poster`}
             loading="lazy"
-            className="h-full w-full object-cover"
+            draggable={false}
+            className="pointer-events-none h-full w-full object-cover"
             onError={(e) => {
               e.currentTarget.style.display = "none";
             }}
@@ -200,6 +265,99 @@ function PosterPlaceholder({ name }: { name: string }) {
       </span>
     </div>
   );
+}
+
+function LiveNumbers({
+  gross,
+  share,
+  admissions,
+  statements,
+}: {
+  gross: number;
+  share: number;
+  admissions: number;
+  statements: number;
+}) {
+  const items = [
+    { label: "Gross box office", value: formatCurrency(gross), animate: gross },
+    { label: "Your share", value: formatCurrency(share), animate: share },
+    {
+      label: "Admissions",
+      value: admissions.toLocaleString("en-GB"),
+      animate: admissions,
+    },
+    {
+      label: "Statements",
+      value: statements.toLocaleString("en-GB"),
+      animate: statements,
+    },
+  ];
+  return (
+    <section className="border-y border-border bg-background">
+      <div className="mx-auto max-w-6xl px-6 py-14">
+        <div className="mb-8 flex items-baseline justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+              Live totals
+            </p>
+            <h2 className="mt-2 font-serif text-3xl tracking-tight text-foreground">
+              Your slate, right now
+            </h2>
+          </div>
+          <Link
+            to="/performance"
+            className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Full breakdown →
+          </Link>
+        </div>
+        <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-4">
+          {items.map((i) => (
+            <div key={i.label} className="bg-card px-5 py-6">
+              <dt className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                {i.label}
+              </dt>
+              <dd className="mt-2 font-serif text-3xl tabular-nums tracking-tight text-foreground">
+                <CountUp target={i.animate} format={(n) => renderMatching(i.value, n)} />
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+  );
+}
+
+// Keeps formatted output shape (currency vs plain) but interpolates numeric value.
+function renderMatching(finalString: string, n: number) {
+  if (finalString.startsWith("£")) return formatCurrency(n);
+  return Math.round(n).toLocaleString("en-GB");
+}
+
+function CountUp({
+  target,
+  format,
+  duration = 900,
+}: {
+  target: number;
+  format: (n: number) => string;
+  duration?: number;
+}) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const from = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setValue(from + (target - from) * eased);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return <>{format(value)}</>;
 }
 
 function StatsStrip() {
