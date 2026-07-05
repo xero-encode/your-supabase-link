@@ -114,9 +114,9 @@ function StatementsList() {
                 <table className="w-full text-sm">
                   <thead className="border-b border-border bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
                     <tr>
-                      <th className="px-4 py-3 font-medium">Title</th>
                       <th className="px-4 py-3 font-medium">Exhibitor</th>
-                      <th className="px-4 py-3 font-medium">Period</th>
+                      <th className="px-4 py-3 font-medium">Playweek</th>
+                      <th className="px-4 py-3 font-medium">Title</th>
                       <th className="px-4 py-3 text-right font-medium">Gross</th>
                       <th className="px-4 py-3 font-medium">Status</th>
                     </tr>
@@ -130,14 +130,14 @@ function StatementsList() {
                             params={{ id: s.id }}
                             className="font-serif text-base text-foreground hover:underline"
                           >
-                            {s.title?.name ?? "—"}
+                            {s.exhibitor?.name ?? "Unknown exhibitor"}
                           </Link>
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground">
-                          {s.exhibitor?.name ?? "—"}
                         </td>
                         <td className="px-4 py-3 text-muted-foreground tabular-nums">
                           {formatPeriod(s.period_start, s.period_end)}
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {s.title?.name ?? "—"}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <MoneyCell amount={s.totalGross} />
