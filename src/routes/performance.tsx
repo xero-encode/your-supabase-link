@@ -225,9 +225,12 @@ function PlayDateBreakdown({ data }: { data: PerformanceSummary }) {
               {rows.map((d) => (
                 <div
                   key={d.play_date}
-                  className="group relative flex h-full flex-1 items-end"
+                  className="group relative flex h-full flex-1 flex-col justify-end"
                   title={`${d.play_date} · ${formatValue(d.value)}`}
                 >
+                  <span className="mb-1 text-center text-[8px] leading-none text-muted-foreground">
+                    {formatValue(d.value)}
+                  </span>
                   <div
                     className="w-full bg-accent-red/80 transition-colors group-hover:bg-accent-red"
                     style={{ height: `${Math.max((d.value / max) * 100, 2)}%` }}
