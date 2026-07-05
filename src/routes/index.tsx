@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { formatCurrency } from "@/lib/format";
@@ -107,7 +108,20 @@ function Hero({ titles }: { titles: FeaturedTitle[] }) {
   );
 }
 
+const ROTATE_MS = 5000;
+
 function PosterStage({ titles }: { titles: FeaturedTitle[] }) {
+  const [offset, setOffset] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused || titles.length <= 1) return;
+    const id = window.setInterval(() => {
+      setOffset((o) => o + 1);
+    }, ROTATE_MS);
+    return () => window.clearInterval(id);
+  }, [paused, titles.length]);
+
   if (titles.length === 0) {
     return (
       <div className="mt-14">
@@ -119,20 +133,59 @@ function PosterStage({ titles }: { titles: FeaturedTitle[] }) {
     );
   }
 
-  const list = titles.slice(0, 3);
-  while (list.length < 3) list.push(list[0]);
-  const [left, center, right] = list;
+  const pick = (i: number) => titles[((i % titles.length) + titles.length) % titles.length];
+  const left = pick(offset - 1);
+  const center = pick(offset);
+  const right = pick(offset + 1);
+  const centerKey = ((offset % titles.length) + titles.length) % titles.length;
 
   return (
-    <div>
-      <div className="relative mt-14 flex items-end justify-center gap-4 md:gap-8">
-        <PosterCard title={left} scale="side" defaultRotation={-6} />
-        <PosterCard title={center} scale="center" defaultRotation={0} />
-        <PosterCard title={right} scale="side" defaultRotation={6} />
+    <div
+      className="mt-14"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className="relative flex items-end justify-center gap-4 md:gap-8">
+        <button
+          type="button"
+          aria-label="Previous title"
+          onClick={() => setOffset((o) => o - 1)}
+          className="absolute left-0 top-1/2 z-20 -translate-y-1/2 rounded-full border border-border bg-background/80 p-2 text-foreground/70 backdrop-blur transition hover:bg-background hover:text-foreground md:left-6"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+
+        <PosterCard title={left} scale="side" rotate="-left" />
+        <PosterCard title={center} scale="center" transitionKey={centerKey} />
+        <PosterCard title={right} scale="side" rotate="-right" />
+
+        <button
+          type="button"
+          aria-label="Next title"
+          onClick={() => setOffset((o) => o + 1)}
+          className="absolute right-0 top-1/2 z-20 -translate-y-1/2 rounded-full border border-border bg-background/80 p-2 text-foreground/70 backdrop-blur transition hover:bg-background hover:text-foreground md:right-6"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
       </div>
-      <p className="mt-6 text-center text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-        Drag a poster to rotate · double-click to reset
-      </p>
+
+      {titles.length > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-2">
+          {titles.map((t, i) => (
+            <button
+              key={t.id}
+              type="button"
+              aria-label={`Show ${t.name}`}
+              onClick={() => setOffset(i)}
+              className={`h-1.5 transition-all ${
+                i === centerKey
+                  ? "w-8 bg-accent-red"
+                  : "w-4 bg-muted-foreground/30 hover:bg-muted-foreground/60"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -140,86 +193,39 @@ function PosterStage({ titles }: { titles: FeaturedTitle[] }) {
 function PosterCard({
   title,
   scale,
-  defaultRotation,
+  rotate,
+  transitionKey,
 }: {
   title: FeaturedTitle;
   scale: "center" | "side";
-  defaultRotation: number;
+  rotate?: "-left" | "-right";
+  transitionKey?: number;
 }) {
   const isCenter = scale === "center";
   const width = isCenter ? "w-56 md:w-72" : "w-32 md:w-44";
   const shadow = isCenter
     ? "shadow-[0_30px_60px_-20px_rgba(0,0,0,0.35)]"
-    : "shadow-[0_20px_40px_-20px_rgba(0,0,0,0.25)] opacity-95";
-  const offset = isCenter
-    ? ""
-    : defaultRotation < 0
-      ? "-mr-4 md:-mr-8"
-      : "-ml-4 md:-ml-8";
+    : "shadow-[0_20px_40px_-20px_rgba(0,0,0,0.25)] opacity-90";
+  const rot =
+    rotate === "-left"
+      ? "-rotate-3 -mr-4 md:-mr-8"
+      : rotate === "-right"
+        ? "rotate-3 -ml-4 md:-ml-8"
+        : "";
   const z = isCenter ? "z-10" : "z-0";
 
-  const [rotation, setRotation] = useState(defaultRotation);
-  const [dragging, setDragging] = useState(false);
-  const posterRef = useRef<HTMLDivElement>(null);
-  const dragState = useRef<{ startAngle: number; startRot: number } | null>(
-    null,
-  );
-
-  const angleFromCenter = (clientX: number, clientY: number) => {
-    const el = posterRef.current;
-    if (!el) return 0;
-    const r = el.getBoundingClientRect();
-    return (
-      (Math.atan2(clientY - (r.top + r.height / 2), clientX - (r.left + r.width / 2)) *
-        180) /
-      Math.PI
-    );
-  };
-
-  const onPointerDown = (e: React.PointerEvent) => {
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    dragState.current = {
-      startAngle: angleFromCenter(e.clientX, e.clientY),
-      startRot: rotation,
-    };
-    setDragging(true);
-  };
-
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!dragState.current) return;
-    const current = angleFromCenter(e.clientX, e.clientY);
-    const delta = current - dragState.current.startAngle;
-    setRotation(dragState.current.startRot + delta);
-  };
-
-  const endDrag = () => {
-    dragState.current = null;
-    setDragging(false);
-  };
-
   return (
-    <article className={`flex flex-col items-center ${z} ${offset}`}>
+    <article className={`flex flex-col items-center ${z}`}>
       <div
-        ref={posterRef}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        onDoubleClick={() => setRotation(defaultRotation)}
-        style={{
-          transform: `rotate(${rotation}deg)`,
-          transition: dragging ? "none" : "transform 300ms ease-out",
-          touchAction: "none",
-        }}
-        className={`${width} ${shadow} aspect-[2/3] cursor-grab touch-none select-none overflow-hidden border border-border bg-muted active:cursor-grabbing`}
+        key={transitionKey}
+        className={`${width} ${shadow} ${rot} aspect-[2/3] overflow-hidden border border-border bg-muted transition-transform ${isCenter ? "animate-fade-in" : ""}`}
       >
         {title.poster_url ? (
           <img
             src={resolvePosterUrl(title.poster_url)}
             alt={`${title.name} poster`}
             loading="lazy"
-            draggable={false}
-            className="pointer-events-none h-full w-full object-cover"
+            className="h-full w-full object-cover"
             onError={(e) => {
               e.currentTarget.style.display = "none";
             }}
@@ -229,7 +235,7 @@ function PosterCard({
         )}
       </div>
       {isCenter && (
-        <div className="mt-6 max-w-xs text-center">
+        <div key={`meta-${transitionKey}`} className="mt-6 max-w-xs animate-fade-in text-center">
           <h2 className="font-serif text-2xl tracking-tight text-foreground">
             {title.name}
           </h2>
@@ -279,17 +285,19 @@ function LiveNumbers({
   statements: number;
 }) {
   const items = [
-    { label: "Gross box office", value: formatCurrency(gross), animate: gross },
-    { label: "Your share", value: formatCurrency(share), animate: share },
+    { label: "Gross box office", value: formatCurrency(gross), animate: gross, currency: true },
+    { label: "Your share", value: formatCurrency(share), animate: share, currency: true },
     {
       label: "Admissions",
       value: admissions.toLocaleString("en-GB"),
       animate: admissions,
+      currency: false,
     },
     {
       label: "Statements",
       value: statements.toLocaleString("en-GB"),
       animate: statements,
+      currency: false,
     },
   ];
   return (
@@ -318,7 +326,14 @@ function LiveNumbers({
                 {i.label}
               </dt>
               <dd className="mt-2 font-serif text-3xl tabular-nums tracking-tight text-foreground">
-                <CountUp target={i.animate} format={(n) => renderMatching(i.value, n)} />
+                <CountUp
+                  target={i.animate}
+                  format={(n) =>
+                    i.currency
+                      ? formatCurrency(n)
+                      : Math.round(n).toLocaleString("en-GB")
+                  }
+                />
               </dd>
             </div>
           ))}
@@ -326,12 +341,6 @@ function LiveNumbers({
       </div>
     </section>
   );
-}
-
-// Keeps formatted output shape (currency vs plain) but interpolates numeric value.
-function renderMatching(finalString: string, n: number) {
-  if (finalString.startsWith("£")) return formatCurrency(n);
-  return Math.round(n).toLocaleString("en-GB");
 }
 
 function CountUp({
@@ -347,11 +356,10 @@ function CountUp({
   useEffect(() => {
     let raf = 0;
     const start = performance.now();
-    const from = 0;
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / duration);
       const eased = 1 - Math.pow(1 - p, 3);
-      setValue(from + (target - from) * eased);
+      setValue(target * eased);
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
