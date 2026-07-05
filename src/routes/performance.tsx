@@ -50,11 +50,11 @@ function PerformancePage() {
       <main className="relative mx-auto max-w-6xl px-6 py-10">
         <div
           aria-hidden
-          className="pointer-events-none absolute left-1/2 top-0 -z-0 h-[360px] w-[520px] -translate-x-1/2 animate-spotlight rounded-full blur-3xl"
+          className="pointer-events-none absolute left-1/2 top-32 -z-0 h-[280px] w-[400px] -translate-x-1/2 -translate-y-1/2 animate-spotlight rounded-full blur-3xl"
           style={{
             background:
-              "radial-gradient(circle, var(--color-accent-red) 0%, transparent 60%)",
-            opacity: 0.22,
+              "radial-gradient(circle, var(--color-accent-red) 0%, transparent 70%)",
+            opacity: 0.14,
           }}
         />
         <header className="relative mb-10 animate-rise-in">
