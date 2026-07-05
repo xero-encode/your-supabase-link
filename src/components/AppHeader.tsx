@@ -19,11 +19,12 @@ export function AppHeader() {
         </Link>
         <nav className="flex items-center gap-6 text-sm">
           <Link
-            to="/dashboard"
+            to="/"
             className={linkClass}
             activeProps={activeLinkProps}
+            activeOptions={{ exact: true }}
           >
-            Dashboard
+            Home
           </Link>
           <Link
             to="/statements"
