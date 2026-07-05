@@ -47,12 +47,22 @@ function PerformancePage() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <header className="mb-10">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+      <main className="relative mx-auto max-w-6xl px-6 py-10">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-0 -z-0 h-[360px] w-[520px] -translate-x-1/2 animate-spotlight rounded-full blur-3xl"
+          style={{
+            background:
+              "radial-gradient(circle, var(--color-accent-red) 0%, transparent 60%)",
+            opacity: 0.22,
+          }}
+        />
+        <header className="relative mb-10 animate-rise-in">
+          <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="inline-block h-1 w-1 animate-reel-tick rounded-full bg-accent-red" />
             Box office
           </p>
-          <h1 className="mt-2 font-serif text-4xl tracking-tight text-foreground">
+          <h1 className="mt-2 font-serif text-4xl tracking-tight text-foreground md:text-5xl">
             Performance
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
@@ -87,26 +97,63 @@ function PerformancePage() {
 
 function SummaryBar({ data }: { data: PerformanceSummary }) {
   const items = [
-    { label: "Gross box office", value: formatCurrency(data.totalGross) },
-    { label: "Your share", value: formatCurrency(data.totalDistributorShare) },
-    { label: "Admissions", value: data.totalAdmissions.toLocaleString("en-GB") },
-    { label: "Statements", value: data.statementCount.toLocaleString("en-GB") },
+    { label: "Gross box office", animate: data.totalGross, currency: true },
+    { label: "Your share", animate: data.totalDistributorShare, currency: true },
+    { label: "Admissions", animate: data.totalAdmissions, currency: false },
+    { label: "Statements", animate: data.statementCount, currency: false },
   ];
   return (
-    <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-4">
-      {items.map((i) => (
-        <div key={i.label} className="bg-card px-5 py-6">
+    <dl className="relative grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-4">
+      {items.map((i, idx) => (
+        <div
+          key={i.label}
+          className="animate-rise-in bg-card px-5 py-6"
+          style={{ animationDelay: `${idx * 80}ms` }}
+        >
           <dt className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
             {i.label}
           </dt>
           <dd className="mt-2 font-serif text-3xl tabular-nums tracking-tight text-foreground">
-            {i.value}
+            <CountUp
+              target={i.animate}
+              format={(n) =>
+                i.currency
+                  ? formatCurrency(n)
+                  : Math.round(n).toLocaleString("en-GB")
+              }
+            />
           </dd>
         </div>
       ))}
     </dl>
   );
 }
+
+function CountUp({
+  target,
+  format,
+  duration = 900,
+}: {
+  target: number;
+  format: (n: number) => string;
+  duration?: number;
+}) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setValue(target * eased);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return <>{format(value)}</>;
+}
+
 
 function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
