@@ -257,10 +257,10 @@ function TitleDeals({
       className="group animate-rise-in overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-foreground/30"
       style={{ animationDelay: `${index * 80}ms` }}
     >
-      <header className="flex items-center gap-5 border-b border-border bg-secondary/30 px-5 py-4">
+      <header className="flex items-center gap-4 border-b border-border bg-secondary/30 px-4 py-4 sm:gap-5 sm:px-5">
         <Poster title={title} />
         <div className="min-w-0 flex-1">
-          <h2 className="truncate font-serif text-2xl tracking-tight text-foreground">
+          <h2 className="truncate font-serif text-xl tracking-tight text-foreground sm:text-2xl">
             {title?.name ?? "Unknown title"}
           </h2>
           <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
