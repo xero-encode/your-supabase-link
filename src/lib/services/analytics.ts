@@ -62,6 +62,7 @@ interface LineRow {
   admissions: number | null;
   gross_amount: number | null;
   ticket_type: string | null;
+  play_date: string | null;
   statement_id: string;
   deal: {
     id: string;
