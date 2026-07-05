@@ -468,8 +468,8 @@ function TopVenues({
   const max = Math.max(...top.map((v) => v.gross), 1);
   return (
     <section className="border-t border-border bg-background">
-      <div className="mx-auto max-w-6xl px-6 py-16">
-        <div className="mb-8 flex items-baseline justify-between">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
           <div>
             <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
               Leaderboard
