@@ -195,6 +195,20 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
       p.gross += gross;
       p.distributorShare += share;
       playDates.set(row.play_date, p);
+
+      const detailKey = `${row.play_date}|${row.deal?.title?.id ?? ""}|${row.deal?.venue?.id ?? ""}`;
+      const dd = playDateDetail.get(detailKey) ?? {
+        play_date: row.play_date,
+        title_id: row.deal?.title?.id ?? null,
+        venue_id: row.deal?.venue?.id ?? null,
+        admissions: 0,
+        gross: 0,
+        distributorShare: 0,
+      };
+      dd.admissions += adm;
+      dd.gross += gross;
+      dd.distributorShare += share;
+      playDateDetail.set(detailKey, dd);
     }
   }
 
@@ -217,6 +231,7 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
     byPlayDate: [...playDates.values()].sort((a, b) =>
       a.play_date.localeCompare(b.play_date),
     ),
+    playDateDetail: [...playDateDetail.values()],
   };
 }
 
