@@ -104,6 +104,7 @@ export async function loadPerformance(): Promise<PerformanceSummary> {
   const deals = new Map<string, DealPerformance>();
   const tickets = new Map<string, TicketTypePerformance>();
   const playDates = new Map<string, PlayDatePerformance>();
+  const playDateDetail = new Map<string, PlayDateDetail>();
   const statementIds = new Set<string>();
 
   let totalAdmissions = 0;
