@@ -47,6 +47,7 @@ function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
+      <TitleTicker titles={titles} />
       <main>
         <Hero titles={titles} />
         <LiveNumbers
@@ -54,7 +55,9 @@ function LandingPage() {
           share={perf.totalDistributorShare}
           admissions={perf.totalAdmissions}
           statements={perf.statementCount}
+          sparkline={perf.byPlayDate}
         />
+        <TopVenues venues={perf.byVenue} />
         <StatsStrip />
       </main>
       <footer className="border-t border-border">
@@ -65,6 +68,33 @@ function LandingPage() {
     </div>
   );
 }
+
+function TitleTicker({ titles }: { titles: FeaturedTitle[] }) {
+  if (titles.length === 0) return null;
+  const line = titles.map((t) => t.name).join("  ✦  ");
+  const doubled = `${line}  ✦  ${line}  ✦  `;
+  return (
+    <div className="relative overflow-hidden border-b border-border bg-foreground text-background">
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-foreground to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-foreground to-transparent" />
+      <div className="flex items-center gap-3 py-2">
+        <span className="ml-4 inline-flex items-center gap-2 whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-background/70">
+          <span className="inline-block h-1.5 w-1.5 animate-reel-tick rounded-full bg-accent-red" />
+          Now showing
+        </span>
+        <div className="flex min-w-0 flex-1 overflow-hidden">
+          <div className="flex shrink-0 animate-marquee whitespace-nowrap font-serif text-sm tracking-wide">
+            <span className="px-4">{doubled}</span>
+            <span className="px-4" aria-hidden>
+              {doubled}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function Hero({ titles }: { titles: FeaturedTitle[] }) {
   return (
