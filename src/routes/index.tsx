@@ -273,7 +273,7 @@ function PosterCard({
             src={resolvePosterUrl(title.poster_url)}
             alt={`${title.name} poster`}
             loading="lazy"
-            className="h-full w-full object-cover"
+            className={`h-full w-full object-cover ${isCenter ? "animate-ken-burns" : ""}`}
             onError={(e) => {
               e.currentTarget.style.display = "none";
             }}
@@ -281,6 +281,7 @@ function PosterCard({
         ) : (
           <PosterPlaceholder name={title.name} />
         )}
+
       </div>
       {isCenter && (
         <div key={`meta-${transitionKey}`} className="mt-6 max-w-xs animate-fade-in text-center">
