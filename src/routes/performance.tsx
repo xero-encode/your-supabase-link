@@ -276,7 +276,7 @@ function PlayDateBreakdown({ data }: { data: PerformanceSummary }) {
                   className="group relative flex h-full flex-1 flex-col justify-end"
                   title={`${d.play_date} · ${formatValue(d.value)}`}
                 >
-                  <span className="mb-1 text-center text-[8px] leading-none text-muted-foreground">
+                  <span className="mb-1 hidden text-center text-[8px] leading-none text-muted-foreground sm:block">
                     {formatValue(d.value)}
                   </span>
                   <div
