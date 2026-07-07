@@ -15,11 +15,11 @@ Out of 61 projects competing in the most competitive track of the event.
 
 ### Demo
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/NgaopEjuzmY?start=22" title="ReelTake demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+[![Link to the YouTube Video](https://img.youtube.com/vi/NgaopEjuzmY&t=22s/0.jpg)](https://www.youtube.com/watch?v=NgaopEjuzmY&t=22s)
 
 ### What the judges said
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/pFCd-d0yO04" title="Judges' feedback" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+[![Link to the YouTube Video](https://img.youtube.com/vi/pFCd-d0yO04/0.jpg)](https://www.youtube.com/shorts/pFCd-d0yO04)
 
 ## What it does
 
