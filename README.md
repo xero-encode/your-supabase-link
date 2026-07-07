@@ -2,11 +2,11 @@
 
 Box office revenue management for independent filmmakers and micro-distributors.
 
-ReelTake helps UK indie producers track ticket sales, apply revenue splits, and raise invoices — without needing to be an accountant.
+ReelTake helps indie producers track ticket sales, apply revenue splits, and raise invoices — without needing to be an accountant.
 
 ## Hackathon wins
 
-ReelTake was built as part of the [Encode Club Xero Hackathon](https://www.encodeclub.com/programmes/xero-hackathon) programme. It won:
+ReelTake was built as part of the [Rise of the Builder: The Xero App & Agent Hackathon](https://www.encodeclub.com/programmes/xero-hackathon) programme. It won:
 
 - **Best use of Make** — 1 year Make subscription
 - **Productivity Powerhouse track for Xero** — £3,000 prize
