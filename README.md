@@ -8,8 +8,8 @@ ReelTake helps indie producers track ticket sales, apply revenue splits, and rai
 
 ReelTake was built as part of the [Rise of the Builder: The Xero App & Agent Hackathon](https://www.encodeclub.com/programmes/xero-hackathon) programme. It won:
 
-- **Best use of Make** — 1 year Make subscription
-- **Productivity Powerhouse track for Xero** — £3,000 prize
+- **Best use of Make** — 1 year Make subscription 🏆
+- **Productivity Powerhouse track for Xero** — £3,000 prize 💷
 
 Out of 61 projects competing in the most competitive track of the event.
 
