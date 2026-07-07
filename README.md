@@ -15,7 +15,7 @@ Out of 61 projects competing in the most competitive track of the event.
 
 ### Demo
 
-[![Link to the YouTube Video](https://img.youtube.com/vi/NgaopEjuzmY&t/0.jpg)](https://www.youtube.com/watch?v=NgaopEjuzmY&t)
+[![Link to the YouTube Video](https://img.youtube.com/vi/NgaopEjuzmY/0.jpg)](https://www.youtube.com/watch?v=NgaopEjuzmY)
 
 ### What the judges said
 
